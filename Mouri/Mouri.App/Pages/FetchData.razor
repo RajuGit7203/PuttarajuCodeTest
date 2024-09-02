@@ -1,0 +1,71 @@
+﻿@page "/fetchdata"
+
+<PageTitle>Patient </PageTitle>
+@using Mouri.App.Services
+@using Mouri.Shared
+@using Microsoft.Extensions.Configuration
+@inject IPatient PatientService
+<h1>Patient Data</h1>
+
+<p>This component demonstrates fetching data from a patient service.</p>
+<input  type="text" placeholder="Enter Id 1000 or 1001" @bind="searchValue" />
+<button @onclick="Fetch">Fetch</button>
+
+
+@if (!string.IsNullOrEmpty(searchValue))
+{
+    @if (patientdata != null)
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Dob</th>
+                    <th>Address</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                <tr>
+                    <td>@patientdata.Id</td>
+                    <td>@patientdata.FirstName</td>
+                    <td>@patientdata.Lastname</td>
+                    <td>@patientdata.Dob</td>
+                    <td>
+                        @patientdata.Address?.Street
+                        @patientdata.Address?.City @patientdata.Address?.State @patientdata.Address?.Zip
+                    </td>
+                </tr>
+
+            </tbody>
+        </table>
+    }
+}
+
+@code {
+    private Patient? patientdata;
+    string searchValue;   
+
+    User user = new User
+        {
+            UserName = "UserName",
+            PassWord = "PassWord"
+        };
+
+    protected override async Task OnInitializedAsync()
+    {
+    
+        var jwtToken = await PatientService.GenerateToken();
+        patientdata = await PatientService.GetPatientInfo(searchValue, jwtToken);
+    }
+
+    private async Task Fetch()
+    {
+        var jwtToken = await PatientService.GenerateToken();
+        patientdata = await PatientService.GetPatientInfo(searchValue, jwtToken);      
+
+    }
+
+}

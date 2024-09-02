@@ -1,0 +1,64 @@
+﻿@page "/"
+@using Mouri.App.Services;
+@using Mouri.Shared;
+@inject ICodeAnalysis CodeAnalysis;
+
+<PageTitle>Puttaraju Test</PageTitle>
+<h5>Hello, Mouri! CodeAnalysis</h5>
+@if (@codeAnalysisGetMessage != null)
+{
+    <span>CodeAnalysis1: </span>
+    <p> @codeAnalysisGetMessage</p>
+    <button @onclick="@postCall"> PostAPI Call</button>
+
+    @if (isPostCallTrigger)
+    {
+        <p>@codeAnalysisPostMessage </p>
+    }
+}
+
+@code {
+    private string codeAnalysisGetMessage = string.Empty;
+    private string codeAnalysisPostMessage = string.Empty;
+    bool isPostCallTrigger = false;
+    protected override async Task OnInitializedAsync()
+    {
+        var user = new User
+            {
+                UserName = "Admin",
+                PassWord = "PassWord"
+            };
+       var jwtToken= await CodeAnalysis.GenerateToken(user);
+        codeAnalysisGetMessage = await GetCodeAnalysis(jwtToken);
+        codeAnalysisPostMessage = await PostCodeAnalysis(jwtToken);
+    }
+    private async Task<string> GetCodeAnalysis(string token)
+    {
+        codeAnalysisGetMessage = await CodeAnalysis.GetFirstCodeAnalysis(token);
+        return codeAnalysisGetMessage;
+
+    }
+    private async Task<string> PostCodeAnalysis(string token)
+    {
+
+        var user = new User
+            {
+                UserName = "Admin",
+                PassWord = "PassWord"
+            };
+        var dog = new TypeOfObject
+            {
+                name = new Dog().GetType().Name
+            };
+
+        codeAnalysisPostMessage = await CodeAnalysis.PostCodeAnalyis(dog, token);
+        return codeAnalysisPostMessage;
+
+    }
+    private async Task postCall()
+    {
+        isPostCallTrigger = true;
+
+
+    }
+}
